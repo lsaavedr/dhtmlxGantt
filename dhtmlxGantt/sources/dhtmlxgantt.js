@@ -952,9 +952,10 @@ GanttProject.prototype.setPercentCompleted = function(percentCompleted)
     {
         this.projectItem[0].firstChild.rows[0].cells[0].parentNode.removeChild(this.projectItem[0].firstChild.rows[0].cells[0]);
 
-        var cellprojectItem = document.createElement("TD");
+        var cellprojectItem = document.createElement("td");
         this.projectItem[0].firstChild.rows[0].appendChild(cellprojectItem);
         cellprojectItem.width = percentCompleted + "%";
+        cellprojectItem.style.padding = "0px";
 
         var imgPr = document.createElement("img");
         imgPr.style.width = (percentCompleted * this.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
@@ -963,9 +964,10 @@ GanttProject.prototype.setPercentCompleted = function(percentCompleted)
         imgPr.src = this.Chart.imgs + "parentnode_filled.png";
 
 
-        cellprojectItem = document.createElement("TD");
+        cellprojectItem = document.createElement("td");
         this.projectItem[0].firstChild.rows[0].appendChild(cellprojectItem);
         cellprojectItem.width = (100 - percentCompleted) + "%";
+        cellprojectItem.style.padding = "0px";
         imgPr = document.createElement("img");
 
         imgPr.style.width = ((100 - percentCompleted) * this.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
@@ -984,9 +986,10 @@ GanttProject.prototype.setPercentCompleted = function(percentCompleted)
 
             this.projectItem[0].firstChild.rows[0].cells[0].parentNode.removeChild(this.projectItem[0].firstChild.rows[0].cells[0]);
 
-            var cellprojectItem = document.createElement("TD");
+            var cellprojectItem = document.createElement("td");
             this.projectItem[0].firstChild.rows[0].appendChild(cellprojectItem);
             cellprojectItem.width = percentCompleted + "%";
+            cellprojectItem.style.padding = "0px";
 
             var imgPr = document.createElement("img");
             imgPr.style.width = (percentCompleted * this.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
@@ -994,9 +997,10 @@ GanttProject.prototype.setPercentCompleted = function(percentCompleted)
             cellprojectItem.appendChild(imgPr);
             imgPr.src = this.Chart.imgs + "parentnode_filled.png";
 
-            cellprojectItem = document.createElement("TD");
+            cellprojectItem = document.createElement("td");
             this.projectItem[0].firstChild.rows[0].appendChild(cellprojectItem);
             cellprojectItem.width = (100 - percentCompleted) + "%";
+            cellprojectItem.style.padding = "0px";
             imgPr = document.createElement("img");
 
             imgPr.style.width = ((100 - percentCompleted) * this.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
@@ -1820,7 +1824,7 @@ GanttTask.prototype.setEST = function(est, shiftChild)
         return false;
     }
 
-    this.cTaskItem[0].style.left = pos;
+    this.cTaskItem[0].style.left = pos + "px";
 
     var width = pos - this.posX;
     this.moveCurrentTaskItem(width, shiftChild);
@@ -1900,6 +1904,7 @@ GanttTask.prototype.setPercentCompleted = function(percentCompleted)
             this.cTaskItem[0].childNodes[0].firstChild.rows[0].appendChild(cellTblTask);
             cellTblTask.height = this.Chart.heightTaskItem + "px";
             cellTblTask.width = percentCompleted + "%";
+            cellTblTask.style.padding = "0px";
 
             var imgPrF = document.createElement("img");
             imgPrF.style.width = (percentCompleted * this.TaskInfo.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
@@ -1911,6 +1916,7 @@ GanttTask.prototype.setPercentCompleted = function(percentCompleted)
             this.cTaskItem[0].childNodes[0].firstChild.rows[0].appendChild(cellTblTask);
             cellTblTask.height = this.Chart.heightTaskItem + "px";
             cellTblTask.width = (100 - percentCompleted) + "%";
+            cellTblTask.style.padding = "0px";
 
             imgPrF = document.createElement("img");
             imgPrF.style.width = ((100 - percentCompleted) * this.TaskInfo.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
@@ -2436,6 +2442,7 @@ GanttChart.prototype.createPopUpInfo = function()
 
     var rowTaskInfo = tblTaskInfo.insertRow(tblTaskInfo.rows.length);
     var cellTaskInfo = document.createElement("td");
+    cellTaskInfo.style.padding = "0px";
     rowTaskInfo.appendChild(cellTaskInfo);
     this.divInfo = divTaskInfo;
     
@@ -2458,6 +2465,7 @@ GanttChart.prototype.createPopUpTimeInfo = function()
     var rowTimeInfo = tblTimeInfo.insertRow(tblTimeInfo.rows.length);
     var cellTimeInfo = document.createElement("td");
     cellTimeInfo.align = "center";
+    cellTimeInfo.style.padding = "0px";
     rowTimeInfo.appendChild(cellTimeInfo);
 
     return divTimeInfo;
@@ -2725,10 +2733,12 @@ GanttChart.prototype.addErrorInPanelErrors = function(type, descr)
     var cell = document.createElement("td");
     cell.style.height = "20px";
     cell.style.width = "100px";
+    cell.style.padding = "0px";
     cell.innerHTML = type;
     row.appendChild(cell);
 
     cell = document.createElement("td");
+    cell.style.padding = "0px";
     row.appendChild(cell);
     cell.innerHTML = descr;
 };
@@ -2870,6 +2880,7 @@ GanttChart.prototype.create = function(divId)
         this.panelNames = document.createElement("div");
         newCellTblControl = document.createElement("td");
         newCellTblControl.vAlign = "top";
+        newCellTblControl.style.padding = "0px";
 
         this.panelNames.appendChild(this.createPanelNamesTasks());
         this.panelNames.style.cssText = "position:relative;top:40px;overflow:hidden;border-left:#f1f3f1 1px solid;border-bottom:#f1f3f1 1px solid";
@@ -2879,6 +2890,7 @@ GanttChart.prototype.create = function(divId)
 
     //add oData and oDataTime
     newCellTblControl = document.createElement("td");
+    newCellTblControl.style.padding = "0px";
     var divCell = document.createElement("div");
     divCell.style.cssText = "position: relative;";
     divCell.appendChild(this.panelTime);
@@ -4124,7 +4136,8 @@ GanttTask.prototype.endResizeItem = function()
 
 GanttProject.prototype.moveDescrProject = function()
 {
-    this.descrProject.style.left = (parseInt(this.projectItem[0].style.left) + this.Duration * this.Chart.hourInPixelsWork + 10);
+    var posX = (parseInt(this.projectItem[0].style.left) + this.Duration * this.Chart.hourInPixelsWork + 10);
+    this.descrProject.style.left = posX + "px";
     this.descrProject.innerHTML = this.getDescStr();
 };
 
@@ -4192,7 +4205,7 @@ GanttProject.prototype.createDescrProject = function()
     {
         var self = this;
         var getPopUpInfo = function(e) {
-            if ((!self.Chart._isMove) && (!self.Chart._isResize))  self.getPopUpInfo(self.descrProject, e);
+            if ((!self.Chart._isMove) && (!self.Chart._isResize)) self.getPopUpInfo(self.descrProject, e);
         };
         var closePopUpInfo = function() {
             self.closePopUpInfo();
@@ -4235,10 +4248,11 @@ GanttProject.prototype.createProjectItem = function()
     {
         if (this.percentCompleted != 0)
         {
-            var cellprojectItem = document.createElement("TD");
+            var cellprojectItem = document.createElement("td");
             rowprojectItem.appendChild(cellprojectItem);
             cellprojectItem.width = this.percentCompleted + "%";
             cellprojectItem.style.lineHeight = "1px";
+            cellprojectItem.style.padding = "0px";
             var imgPr = document.createElement("img");
             imgPr.style.width = (this.percentCompleted * this.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
             imgPr.style.height = this.Chart.heightTaskItem + "px";
@@ -4249,10 +4263,11 @@ GanttProject.prototype.createProjectItem = function()
 
         if (this.percentCompleted != 100)
         {
-            var cellprojectItem = document.createElement("TD");
+            var cellprojectItem = document.createElement("td");
             rowprojectItem.appendChild(cellprojectItem);
             cellprojectItem.width = (100 - this.percentCompleted) + "%";
             cellprojectItem.style.lineHeight = "1px";
+            cellprojectItem.style.padding = "0px";
             var imgPr = document.createElement("img");
             imgPr.style.width = ((100 - this.percentCompleted) * this.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
             imgPr.style.height = this.Chart.heightTaskItem + "px";
@@ -4262,10 +4277,11 @@ GanttProject.prototype.createProjectItem = function()
 
     } else
     {
-        var cellprojectItem = document.createElement("TD");
+        var cellprojectItem = document.createElement("td");
         rowprojectItem.appendChild(cellprojectItem);
         cellprojectItem.width = "1px";
         cellprojectItem.style.lineHeight = "1px";
+        cellprojectItem.style.padding = "0px";
         var imgPr = document.createElement("img");
         imgPr.style.width = "1px";
         imgPr.style.height = this.Chart.heightTaskItem;
@@ -4292,6 +4308,7 @@ GanttProject.prototype.createProjectItem = function()
     cellTaskInfo.height = this.Chart.heightTaskItem + "px";
     cellTaskInfo.className = "moveInfo";
     cellTaskInfo.style.cssText = ";white-space:nowrap;";
+    cellTaskInfo.style.padding = "0px";
     rowTaskInfo.appendChild(cellTaskInfo);
     projectItem.appendChild(divTaskInfo);
 
@@ -4869,6 +4886,7 @@ GanttTask.prototype.createTaskItem = function()
         cellTblTask.height = this.Chart.heightTaskItem + "px";
         cellTblTask.width = this.TaskInfo.PercentCompleted + "%";
         cellTblTask.style.lineHeight = "1px";
+        cellTblTask.style.padding = "0px";
         var imgPr = document.createElement("img");
         imgPr.style.width = (this.TaskInfo.PercentCompleted * this.TaskInfo.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
         imgPr.style.height = this.Chart.heightTaskItem + "px";
@@ -4883,6 +4901,7 @@ GanttTask.prototype.createTaskItem = function()
         cellTblTask.height = this.Chart.heightTaskItem + "px";
         cellTblTask.width = (100 - this.TaskInfo.PercentCompleted) + "%";
         cellTblTask.style.lineHeight = "1px";
+        cellTblTask.style.padding = "0px";
         var imgPrF = document.createElement("img");
         imgPrF.style.width = ((100 - this.TaskInfo.PercentCompleted) * this.TaskInfo.Duration * this.Chart.hourInPixelsWork) / 100 + "px";
         imgPrF.style.height = this.Chart.heightTaskItem + "px";
@@ -4910,6 +4929,7 @@ GanttTask.prototype.createTaskItem = function()
         cellTaskInfo.height = this.Chart.heightTaskItem + "px";
         cellTaskInfo.className = "moveInfo";
         cellTaskInfo.style.cssText = ";white-space:nowrap;font-size:9px";
+        cellTaskInfo.style.padding = "0px";
         rowTaskInfo.appendChild(cellTaskInfo);
         itemControl.appendChild(divTaskInfo);
     }
