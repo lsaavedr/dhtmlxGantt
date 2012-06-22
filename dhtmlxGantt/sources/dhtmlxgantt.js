@@ -2445,7 +2445,7 @@ GanttChart.prototype.createPopUpInfo = function()
     cellTaskInfo.style.padding = "0px";
     rowTaskInfo.appendChild(cellTaskInfo);
     this.divInfo = divTaskInfo;
-    
+
     return divTaskInfo;
 };
 /**
@@ -2595,7 +2595,7 @@ GanttChart.prototype.addDayInPanelTime = function(row)
         for(var i=0; i<n; i++){
             cs += monthRow.cells[i].colSpan;
         }
-        if (idx>=cs) monthRow.cells[n-1].colSpan += 1; 
+        if (idx>=cs) monthRow.cells[n-1].colSpan += 1;
     }
 
     var w = date.getDay();
@@ -4025,7 +4025,7 @@ GanttTask.prototype.moveTaskItem = function(posX)
 {
     this.addDayInPanelTime();
     this.cTaskItem[0].style.left = posX + "px";
-    var date = this.getDateOnPosition(posX); 
+    var date = this.getDateOnPosition(posX);
     this.cTaskItem[0].childNodes[1].firstChild.rows[0].cells[0].innerHTML = date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getUTCFullYear();
 };
 /**
