@@ -164,20 +164,20 @@ GanttProjectInfo.prototype.getTaskByIdInTree = function(parentTask, id)
 };
 /**
  * @desc: GanttTaskInfo constructor
- * @param: id - specifies id of task
- * @param: name  - specifies name of task
- * @param: est  - specifies Estimated Start Date of task
- * @param: duration - specifies duration of task in hours
- * @param: percentCompleted - specifies percentCompleted of task
- * @param: predecessorTaskId - specifies predecessorTask Id of task
+ * @param: id - Specifies id of task
+ * @param: name  - Specifies name of task
+ * @param: startDate  - Specifies start date of task
+ * @param: duration - Specifies duration of task in hours
+ * @param: percentCompleted - Specifies percentCompleted of task
+ * @param: predecessorTaskId - Specifies predecessorTask Id of task
  * @type:  public
  * @topic: 0
  */
-function GanttTaskInfo(id, name, est, duration, percentCompleted, predecessorTaskId)
+function GanttTaskInfo(id, name, startDate, duration, percentCompleted, predecessorTaskId)
 {
     this.Id = id;
     this.Name = name;
-    this.EST = est;
+    this.StartDate = startDate;
     this.Duration = duration;
     this.PercentCompleted = percentCompleted;
     this.PredecessorTaskId = predecessorTaskId;
@@ -470,7 +470,7 @@ GanttChart.prototype.setCorrectError = function(isCorrectError)
 /**
  * @desc: enable or disable inline task description (displayed right after the task bar), and configure the shown values
  * @param: isShowDescTask - true/false show or hide
- * @param: param - comma separated list of letters: n - Name, d - Duration, e - EST, p -Percent complete. For example value "n,e" will show task name and EST date.
+ * @param: param - comma separated list of letters: n - Name, d - Duration, s - Start date, p - Percent complete. For example value "n,s" will show task name and start date.
  * @type: public
  * @topic: 3
  * @before_init: 1
@@ -573,8 +573,8 @@ GanttChart.prototype.getParamShowTask = function(param)
             //duration
             return 1;
             break;
-        case 'e':
-            //est
+        case 's':
+            //startDate
             return 2;
             break;
         case 'p':
@@ -630,7 +630,7 @@ GanttChart.prototype.getValueShowTask = function(param)
                     arrValues.push('Duration');
                     break;
                 case 2:
-                    arrValues.push('EST');
+                    arrValues.push('StartDate');
                     break;
                 case 3:
                     arrValues.push('PercentComplete');
@@ -1158,14 +1158,14 @@ GanttProject.prototype.deleteChildTask = function(task)
  * @desc: Insert the task in the project and returns it
  * @param: id - Specifies id of task
  * @param: name - Specifies name of task
- * @param: EST - Specifies est of task
+ * @param: StartDate - Specifies start date of task
  * @param: Duration - Specifies duration of task
  * @param: PercentCompleted - Specifies percentCompleted of task
  * @param: predecessorTaskId - Specifies predecessorTask Id of task
  * @type: public
  * @topic: 1
  */
-GanttProject.prototype.insertTask = function(id, name, EST, Duration, PercentCompleted, predecessorTaskId, parentTaskId)
+GanttProject.prototype.insertTask = function(id, name, StartDate, Duration, PercentCompleted, predecessorTaskId, parentTaskId)
 {
     var task = null;
     var _task = null;
@@ -1202,13 +1202,13 @@ GanttProject.prototype.insertTask = function(id, name, EST, Duration, PercentCom
             return false;
         }
 
-        EST = EST || parentTask.EST;
-        if (EST < parentTask.EST) {
+        StartDate = StartDate || parentTask.StartDate;
+        if (StartDate < parentTask.StartDate) {
             this.Chart.Error.throwError("DATA_INSERT_ERROR", 20, [id,parentTaskId]);
             return false;
         }
 
-        task = new GanttTaskInfo(id, name, EST, Duration, PercentCompleted, predecessorTaskId);
+        task = new GanttTaskInfo(id, name, StartDate, Duration, PercentCompleted, predecessorTaskId);
 
         if (!this.Chart.checkPosParentTask(parentTask, task)) {
             this.Chart.Error.throwError("DATA_INSERT_ERROR", 19, [parentTaskId,id]);
@@ -1263,7 +1263,7 @@ GanttProject.prototype.insertTask = function(id, name, EST, Duration, PercentCom
         var isAdd = false;
 
         if (sortRequired) for (var i = 0; i < parentTask.ChildTasks.length; i++) {
-            if (task.EST < parentTask.ChildTasks[i].EST)
+            if (task.StartDate < parentTask.ChildTasks[i].StartDate)
             {
                 parentTask.ChildTasks.splice(i, 0, task);
                 if (i > 0) {
@@ -1301,11 +1301,11 @@ GanttProject.prototype.insertTask = function(id, name, EST, Duration, PercentCom
     } else
     {
 
-        EST = EST || this.Project.StartDate;
+        StartDate = StartDate || this.Project.StartDate;
 
-        task = new GanttTaskInfo(id, name, EST, Duration, PercentCompleted, predecessorTaskId);
+        task = new GanttTaskInfo(id, name, StartDate, Duration, PercentCompleted, predecessorTaskId);
 
-        if (task.EST <= this.Chart.startDate) {
+        if (task.StartDate <= this.Chart.startDate) {
             this.Chart.Error.throwError("DATA_INSERT_ERROR", 18, [task.Id]);
             return false;
         }
@@ -1331,7 +1331,7 @@ GanttProject.prototype.insertTask = function(id, name, EST, Duration, PercentCom
 
         if (sortRequired) for (var i = 0; i < this.Project.ParentTasks.length; i++) {
 
-            if (EST < this.Project.ParentTasks[i].EST)
+            if (StartDate < this.Project.ParentTasks[i].StartDate)
             {
                 this.Project.ParentTasks.splice(i, 0, task);
                 if (i > 0) {
@@ -1386,30 +1386,30 @@ GanttProject.prototype.insertTask = function(id, name, EST, Duration, PercentCom
 GanttChart.prototype.checkPosPredecessorTask = function(predTask, task)
 {
     var widthPred = this.getWidthOnDuration(predTask.Duration);
-    var posPred = this.getPosOnDate(predTask.EST);
-    var posChild = this.getPosOnDate(task.EST);
+    var posPred = this.getPosOnDate(predTask.StartDate);
+    var posChild = this.getPosOnDate(task.StartDate);
     return (widthPred + posPred) <= posChild;
 
 };
 GanttChart.prototype.correctPosPredecessorTask = function(predTask, ctask, ctaskObj)
 {
-    var newDate = new Date(predTask.EST);
+    var newDate = new Date(predTask.StartDate);
     newDate.setHours(newDate.getHours() + (predTask.Duration / this.hoursInDay * 24));
     if (newDate.getHours() > 0) {
         newDate.setHours(0);
         newDate.setDate(newDate.getDate() + 1);
     }
 
-    if (ctaskObj) ctaskObj.setEST(newDate, true);
-    else ctask.EST = newDate;
+    if (ctaskObj) ctaskObj.setStartDate(newDate, true);
+    else ctask.StartDate = newDate;
 
     if (ctask.ParentTask)
     {
         if (!this.checkPosParentTask(ctask.ParentTask, ctask))
         {
-            var newDate2 = new Date(ctask.ParentTask.EST);
+            var newDate2 = new Date(ctask.ParentTask.StartDate);
             newDate2.setHours(newDate2.getHours() + (ctask.ParentTask.Duration / this.hoursInDay * 24));
-            ctask.Duration = parseInt((parseInt((newDate2 - ctask.EST) / (1000 * 60 * 60))) * this.hoursInDay / 24);
+            ctask.Duration = parseInt((parseInt((newDate2 - ctask.StartDate) / (1000 * 60 * 60))) * this.hoursInDay / 24);
         }
     }
 };
@@ -1417,8 +1417,8 @@ GanttChart.prototype.correctPosParentTask = function(parentTask, ctask)
 {
     if (!ctask.PredecessorTask)
     {
-        if (parentTask.EST > ctask.EST) {
-            ctask.EST = new Date(parentTask.EST);
+        if (parentTask.StartDate > ctask.StartDate) {
+            ctask.StartDate = new Date(parentTask.StartDate);
         }
         if (!this.checkPosParentTask(parentTask, ctask)) {
             ctask.Duration = parentTask.Duration;
@@ -1450,7 +1450,7 @@ GanttChart.prototype.checkPosParentTaskInTree = function(parentTask)
                 this.correctPosParentTask(parentTask, parentTask.ChildTasks[t]);
             }
         }
-        if (parentTask.EST > parentTask.ChildTasks[t].EST)
+        if (parentTask.StartDate > parentTask.ChildTasks[t].StartDate)
         {
             if (!this.correctError) {
                 this.Error.throwError("DATA_ERROR", 33, [parentTask.Id,parentTask.ChildTasks[t].Id]);
@@ -1563,8 +1563,8 @@ GanttChart.prototype.setPredTaskInTree = function(parentTask)
 GanttChart.prototype.checkPosParentTask = function(parentTask, task)
 {
     var widthParent = this.getWidthOnDuration(parentTask.Duration);
-    var posParent = this.getPosOnDate(parentTask.EST);
-    var posChild = this.getPosOnDate(task.EST);
+    var posParent = this.getPosOnDate(parentTask.StartDate);
+    var posChild = this.getPosOnDate(task.StartDate);
     var widthChild = this.getWidthOnDuration(task.Duration);
     return (widthParent + posParent) >= (posChild + widthChild);
 };
@@ -1572,7 +1572,7 @@ GanttChart.prototype.checkPosParentTask = function(parentTask, task)
  * @desc: Insert new GanttProject and returns it
  * @param: id - id of project
  * @param: name - name of project
- * @param: startDate - Start Date of project
+ * @param: startDate - start date of project
  * @type: public
  * @topic: 1
  */
@@ -1797,17 +1797,17 @@ GanttTask.prototype.clearPredTask = function() {
 
 /**
  * @desc: shifts the task
- * @param: est - est of current Task
+ * @param: startDate - start date of current Task
  * @param: shiftChild - (true/false) to shift children or not
  * @type: public
  * @topic: 0
  */
-GanttTask.prototype.setEST = function(est, shiftChild)
+GanttTask.prototype.setStartDate = function(startDate, shiftChild)
 {
     this.moveChild = shiftChild;
     this.getMoveInfo();
 
-    var pos = this.Chart.getPosOnDate(est);
+    var pos = this.Chart.getPosOnDate(startDate);
     if ((parseInt(this.cTaskItem[0].firstChild.firstChild.width) + pos > this.maxPosXMove) && (this.maxPosXMove != -1))
     {
         this.Chart.Error.throwError("DATA_INSERT_ERROR", 12, [this.TaskInfo.Id]);
@@ -2031,8 +2031,8 @@ GanttChart.prototype.loadData = function(content, isFile, isLocal)
     {
         for (var k = 0; k < this.Project[i].ParentTasks.length; k++)
         {
-            if ((this.Project[i].ParentTasks[k].EST != null) && (this.Project[i].ParentTasks[k].EST != '')) {
-                this.setESTChild(this.Project[i].ParentTasks[k]);
+            if ((this.Project[i].ParentTasks[k].StartDate != null) && (this.Project[i].ParentTasks[k].StartDate != '')) {
+                this.setStartDateChild(this.Project[i].ParentTasks[k]);
             }
             else {
                 this.Error.throwError("DATA_ERROR", 25, [this.Project[i].ParentTasks[k].Id]);
@@ -2043,14 +2043,14 @@ GanttChart.prototype.loadData = function(content, isFile, isLocal)
         }
 
         for (var k = 0; k < this.Project[i].ParentTasks.length; k++) {
-            if (this.Project[i].ParentTasks[k].EST < this.Project[i].StartDate) {
+            if (this.Project[i].ParentTasks[k].StartDate < this.Project[i].StartDate) {
                 this.Error.throwError("DATA_ERROR", 24, [this.Project[i].ParentTasks[k].Id,this.Project[i].Id]);
                 return;
             }
             if (this.checkPosParentTaskInTree(this.Project[i].ParentTasks[k])) return;
         }
 
-        this.sortTasksByEST(this.Project[i]);
+        this.sortTasksByStartDate(this.Project[i]);
 
     }
 
@@ -2206,7 +2206,7 @@ GanttChart.prototype.doLoadDetails = function(isLocal)
 
     var name = null;
     var id = null;
-    var est = null;
+    var startDate = null;
     var duration = null;
     var percentCompleted = null;
     var predecessorTaskId = null;
@@ -2228,13 +2228,13 @@ GanttChart.prototype.doLoadDetails = function(isLocal)
 
             id = taskArr[i].getAttribute("id");
             name = (this.xmlLoader.doXPath("./name", taskArr[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./name", taskArr[i])[0].firstChild.nodeValue;
-            var estTemp = (this.xmlLoader.doXPath("./est", taskArr[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./est", taskArr[i])[0].firstChild.nodeValue;
-            est = estTemp.split(",");
+            var startDateTemp = (this.xmlLoader.doXPath("./startdate", taskArr[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./startdate", taskArr[i])[0].firstChild.nodeValue;
+            startDate = startDateTemp.split(",");
             duration = (this.xmlLoader.doXPath("./duration", taskArr[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./duration", taskArr[i])[0].firstChild.nodeValue;
             percentCompleted = (this.xmlLoader.doXPath("./percentcompleted", taskArr[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./percentcompleted", taskArr[i])[0].firstChild.nodeValue;
             predecessorTaskId = (this.xmlLoader.doXPath("./predecessortasks", taskArr[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./predecessortasks", taskArr[i])[0].firstChild.nodeValue;
 
-            var task = new GanttTaskInfo(id, name, new Date(est[0], (parseInt(est[1]) - 1), est[2]), duration, percentCompleted, predecessorTaskId);
+            var task = new GanttTaskInfo(id, name, new Date(startDate[0], (parseInt(startDate[1]) - 1), startDate[2]), duration, percentCompleted, predecessorTaskId);
             var childTasksNode = this.xmlLoader.doXPath("./childtasks", taskArr[i]);
             var childTasksArr = this.xmlLoader.doXPath("./task", childTasksNode[0]);
 
@@ -2259,7 +2259,7 @@ GanttChart.prototype.readChildTasksXML = function(parentTask, childTasksArrXML)
 
     var name = null;
     var id = null;
-    var est = null;
+    var startDate = null;
     var duration = null;
     var percentCompleted = null;
     var predecessorTaskId = null;
@@ -2268,12 +2268,12 @@ GanttChart.prototype.readChildTasksXML = function(parentTask, childTasksArrXML)
     {
         id = childTasksArrXML[i].getAttribute("id");
         name = (this.xmlLoader.doXPath("./name", childTasksArrXML[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./name", childTasksArrXML[i])[0].firstChild.nodeValue;
-        var estTemp = (this.xmlLoader.doXPath("./est", childTasksArrXML[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./est", childTasksArrXML[i])[0].firstChild.nodeValue;
-        est = estTemp.split(",");
+        var startDateTemp = (this.xmlLoader.doXPath("./startdate", childTasksArrXML[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./startdate", childTasksArrXML[i])[0].firstChild.nodeValue;
+        startDate = startDateTemp.split(",");
         duration = (this.xmlLoader.doXPath("./duration", childTasksArrXML[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./duration", childTasksArrXML[i])[0].firstChild.nodeValue;
         percentCompleted = (this.xmlLoader.doXPath("./percentcompleted", childTasksArrXML[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./percentcompleted", childTasksArrXML[i])[0].firstChild.nodeValue;
         predecessorTaskId = (this.xmlLoader.doXPath("./predecessortasks", childTasksArrXML[i])[0].firstChild == null) ? "" : this.xmlLoader.doXPath("./predecessortasks", childTasksArrXML[i])[0].firstChild.nodeValue;
-        var task = new GanttTaskInfo(id, name, new Date(est[0], (parseInt(est[1]) - 1), est[2]), duration, percentCompleted, predecessorTaskId);
+        var task = new GanttTaskInfo(id, name, new Date(startDate[0], (parseInt(startDate[1]) - 1), startDate[2]), duration, percentCompleted, predecessorTaskId);
         task.ParentTask = parentTask;
 
         parentTask.addChildTask(task);
@@ -2305,7 +2305,7 @@ GanttChart.prototype.getXML = function()
         {
             strXML += "<task id ='" + this.Project[i].ParentTasks[j].Id + "'>";
             strXML += "<name>" + this.Project[i].ParentTasks[j].Name + "</name>";
-            strXML += "<est>" + this.Project[i].ParentTasks[j].EST.getFullYear() + "," + (this.Project[i].ParentTasks[j].EST.getMonth() + 1) + "," + this.Project[i].ParentTasks[j].EST.getDate() + "</est>";
+            strXML += "<startdate>" + this.Project[i].ParentTasks[j].StartDate.getFullYear() + "," + (this.Project[i].ParentTasks[j].StartDate.getMonth() + 1) + "," + this.Project[i].ParentTasks[j].StartDate.getDate() + "</startdate>";
             strXML += "<duration>" + this.Project[i].ParentTasks[j].Duration + "</duration>";
             strXML += "<percentcompleted>" + this.Project[i].ParentTasks[j].PercentCompleted + "</percentcompleted>";
             strXML += "<predecessortasks>" + this.Project[i].ParentTasks[j].PredecessorTaskId + "</predecessortasks>";
@@ -2335,7 +2335,7 @@ GanttChart.prototype.createChildTasksXML = function(childTasks)
     {
         strXML += "<task id='" + childTasks[n].Id + "'>";
         strXML += "<name>" + childTasks[n].Name + "</name>";
-        strXML += "<est>" + childTasks[n].EST.getFullYear() + "," + (childTasks[n].EST.getMonth() + 1) + "," + childTasks[n].EST.getDate() + "</est>";
+        strXML += "<startdate>" + childTasks[n].StartDate.getFullYear() + "," + (childTasks[n].StartDate.getMonth() + 1) + "," + childTasks[n].StartDate.getDate() + "</startdate>";
         strXML += "<duration>" + childTasks[n].Duration + "</duration>";
         strXML += "<percentcompleted>" + childTasks[n].PercentCompleted + "</percentcompleted>";
         strXML += "<predecessortasks>" + childTasks[n].PredecessorTaskId + "</predecessortasks>";
@@ -2351,14 +2351,14 @@ GanttChart.prototype.createChildTasksXML = function(childTasks)
 
 };
 /**
- * @desc: function of sorting by EST
+ * @desc: function of sorting by start date
  * @type: private
  * @topic: 4
  */
-GanttChart.prototype.sort_byEST = function(a, b)
+GanttChart.prototype.sort_byStartDate = function(a, b)
 {
-    if (a.EST < b.EST) return -1;
-    if (a.EST > b.EST) return 1;
+    if (a.StartDate < b.StartDate) return -1;
+    if (a.StartDate > b.StartDate) return 1;
     return 0;
 };
 /**
@@ -2379,16 +2379,16 @@ GanttChart.prototype.sort_byStartDate = function(a, b)
  * @type: private
  * @topic: 4
  */
-GanttChart.prototype.setESTChild = function(parentTask)
+GanttChart.prototype.setStartDateChild = function(parentTask)
 {
     for (var t = 0; t < parentTask.ChildTasks.length; t++)
     {
-        if ((parentTask.ChildTasks[t].EST == null ) || (parentTask.ChildTasks[t].EST == ""))
+        if ((parentTask.ChildTasks[t].StartDate == null ) || (parentTask.ChildTasks[t].StartDate == ""))
         {
-            parentTask.ChildTasks[t].EST = parentTask.EST;
+            parentTask.ChildTasks[t].StartDate = parentTask.StartDate;
         }
 
-        if (parentTask.ChildTasks[t].ChildTasks.length != 0) this.setESTChild(parentTask.ChildTasks[t]);
+        if (parentTask.ChildTasks[t].ChildTasks.length != 0) this.setStartDateChild(parentTask.ChildTasks[t]);
     }
 
 };
@@ -2635,14 +2635,14 @@ GanttChart.prototype.checkHeighPanelTasks = function()
     }
 };
 /**
- * @desc: sorting of tasks by EST in the current project
+ * @desc: sorting of tasks by start date in the current project
  * @param: project - current project
  * @type: private
  * @topic: 4
  */
-GanttChart.prototype.sortTasksByEST = function(project)
+GanttChart.prototype.sortTasksByStartDate = function(project)
 {
-    project.ParentTasks.sort(this.sort_byEST);
+    project.ParentTasks.sort(this.sort_byStartDate);
 
     for (var i = 0; i < project.ParentTasks.length; i++)
     {
@@ -2658,7 +2658,7 @@ GanttChart.prototype.sortTasksByEST = function(project)
  */
 GanttChart.prototype.sortChildTasks = function(parenttask)
 {
-    parenttask.ChildTasks.sort(this.sort_byEST);
+    parenttask.ChildTasks.sort(this.sort_byStartDate);
 
     for (var i = 0; i < parenttask.ChildTasks.length; i++)
     {
@@ -2943,28 +2943,28 @@ GanttChart.prototype.create = function(divId)
 
         for (var k = 0; k < this.Project[i].ParentTasks.length; k++)
         {
-            if (this.isEmpty(this.Project[i].ParentTasks[k].EST)) {
-                this.Project[i].ParentTasks[k].EST = this.Project[i].StartDate;
+            if (this.isEmpty(this.Project[i].ParentTasks[k].StartDate)) {
+                this.Project[i].ParentTasks[k].StartDate = this.Project[i].StartDate;
             }
-            this.setESTChild(this.Project[i].ParentTasks[k]);
+            this.setStartDateChild(this.Project[i].ParentTasks[k]);
 
             if (this.setPredTask(this.Project[i])) return;
         }
 
         for (var k = 0; k < this.Project[i].ParentTasks.length; k++) {
-            if (this.Project[i].ParentTasks[k].EST < this.Project[i].StartDate) {
+            if (this.Project[i].ParentTasks[k].StartDate < this.Project[i].StartDate) {
 
                 if (!this.correctError) {
                     this.Error.throwError("DATA_ERROR", 24, [this.Project[i].ParentTasks[k].Id,this.Project[i].Id]);
                     return;
                 } else {
-                    this.Project[i].ParentTasks[k].EST = this.Project[i].StartDate;
+                    this.Project[i].ParentTasks[k].StartDate = this.Project[i].StartDate;
                 }
             }
             if (this.checkPosParentTaskInTree(this.Project[i].ParentTasks[k])) return;
         }
 
-        this.sortTasksByEST(this.Project[i]);
+        this.sortTasksByStartDate(this.Project[i]);
 
     }
 
@@ -3037,7 +3037,7 @@ GanttChart.prototype.printToWindow = function(message)
 };
 
 /**
- * @desc: Calculation of Start Date
+ * @desc: Calculation of start date
  * @type: private
  * @topic: 4
  */
@@ -3152,7 +3152,7 @@ GanttTask.prototype.getPopUpInfo = function(object, event)
     //data of task
     var tblInfo = this.Chart.divInfo.lastChild;
     tblInfo.rows[0].cells[0].innerHTML = "<div style='font-family: Arial, Helvetica, Sans-serif; font-size: 12px; font-weight: bold; color: #688060; margin: 0 0 4px 0;'>" + this.TaskInfo.Name + "</div>";
-    tblInfo.rows[0].cells[0].innerHTML += "<span class='st'>EST:&nbsp;</span><span class='ut'>" + this.TaskInfo.EST.getDate() + "." + (this.TaskInfo.EST.getMonth() + 1) + "." + this.TaskInfo.EST.getFullYear() + "</span><br/>";
+    tblInfo.rows[0].cells[0].innerHTML += "<span class='st'>Start Date:&nbsp;</span><span class='ut'>" + this.TaskInfo.StartDate.getDate() + "." + (this.TaskInfo.StartDate.getMonth() + 1) + "." + this.TaskInfo.StartDate.getFullYear() + "</span><br/>";
     tblInfo.rows[0].cells[0].innerHTML += "<span class='st'>Duration:&nbsp;</span><span class='ut'>" + this.TaskInfo.Duration + " hours </span><br/>";
     tblInfo.rows[0].cells[0].innerHTML += "<span class='st'>Percent Complete:&nbsp;</span><span class='ut'>" + this.TaskInfo.PercentCompleted + "% </span><br/>";
 
@@ -3377,7 +3377,7 @@ GanttTask.prototype.hideChildTasks = function(task)
 /**
  * @desc: shift current tasks
  * @param: task - (object) GanttTask
- * @param: height - specifies height on which tasks are shifted
+ * @param: height - Specifies height on which tasks are shifted
  * @type: private
  * @topic: 4
  */
@@ -3523,14 +3523,14 @@ GanttTask.prototype.shiftChildTask = function(task, height)
 };
 
 /**
- * @desc: get position of the task on EST
- * @param: est - time of the beginning of the task
+ * @desc: get position of the task on start date
+ * @param: startDate - time of the beginning of the task
  * @type: private
  * @topic: 4
  */
-GanttChart.prototype.getPosOnDate = function(est)
+GanttChart.prototype.getPosOnDate = function(startDate)
 {
-    return  (est - this.startDate) / (60 * 60 * 1000) * this.hourInPixels;
+    return  (startDate - this.startDate) / (60 * 60 * 1000) * this.hourInPixels;
 };
 /**
  * @desc: get width on duration
@@ -3550,13 +3550,13 @@ GanttChart.prototype.getWidthOnDuration = function(duration)
 GanttTask.prototype.endMove = function()
 {
     var width = parseInt(this.cTaskItem[0].style.left) - this.posX;
-    var est = this.getDateOnPosition(parseInt(this.cTaskItem[0].style.left));
-    est = this.checkPos(est);
+    var startDate = this.getDateOnPosition(parseInt(this.cTaskItem[0].style.left));
+    startDate = this.checkPos(startDate);
 
-    this.wasMoved = this.TaskInfo.EST.valueOf() !=  est.valueOf();
+    this.wasMoved = this.TaskInfo.StartDate.valueOf() !=  startDate.valueOf();
 
     if (this.checkMove) {
-        width = this.Chart.getPosOnDate(est) - this.posX;
+        width = this.Chart.getPosOnDate(startDate) - this.posX;
         this.moveCurrentTaskItem(width, this.moveChild);
         this.Project.shiftProjectItem();
     }
@@ -3571,32 +3571,32 @@ GanttTask.prototype.endMove = function()
     if (this.Chart._isIE) this.cTaskItem[0].childNodes[2].childNodes[0].style.cursor = "";
 };
 
-GanttTask.prototype.checkPos = function(est)
+GanttTask.prototype.checkPos = function(startDate)
 {
-    var h = est.getHours();
+    var h = startDate.getHours();
     if (h >= 12)
     {
-        est.setDate(est.getDate() + 1);
-        est.setHours(0);
+        startDate.setDate(startDate.getDate() + 1);
+        startDate.setHours(0);
 
-        if ((parseInt(this.cTaskItem[0].firstChild.firstChild.width) + this.Chart.getPosOnDate(est) > this.maxPosXMove) && (this.maxPosXMove != -1))
+        if ((parseInt(this.cTaskItem[0].firstChild.firstChild.width) + this.Chart.getPosOnDate(startDate) > this.maxPosXMove) && (this.maxPosXMove != -1))
         {
-            est.setDate(est.getDate() - 1);
-            est.setHours(0);
+            startDate.setDate(startDate.getDate() - 1);
+            startDate.setHours(0);
         }
 
 
     } else if ((h < 12) && (h != 0))
     {
-        est.setHours(0);
-        if ((this.Chart.getPosOnDate(est) < this.minPosXMove))
+        startDate.setHours(0);
+        if ((this.Chart.getPosOnDate(startDate) < this.minPosXMove))
         {
-            est.setDate(est.getDate() + 1);
+            startDate.setDate(startDate.getDate() + 1);
         }
     }
-    this.cTaskItem[0].style.left = this.Chart.getPosOnDate(est) + "px";
+    this.cTaskItem[0].style.left = this.Chart.getPosOnDate(startDate) + "px";
 
-    return  est;
+    return  startDate;
 
 };
 
@@ -3884,8 +3884,8 @@ GanttProject.prototype.resizeProjectItem = function(width)
 GanttTask.prototype.moveCurrentTaskItem = function(width, moveChild)
 {
     var taskItem = this.cTaskItem[0];
-    this.TaskInfo.EST = new Date(this.Chart.startDate);
-    this.TaskInfo.EST.setHours(this.TaskInfo.EST.getHours() + (parseInt(taskItem.style.left) / this.Chart.hourInPixels));
+    this.TaskInfo.StartDate = new Date(this.Chart.startDate);
+    this.TaskInfo.StartDate.setHours(this.TaskInfo.StartDate.getHours() + (parseInt(taskItem.style.left) / this.Chart.hourInPixels));
     if (this.Chart.isShowDescTask) {
         this.showDescTask();
     }
@@ -3922,8 +3922,8 @@ GanttTask.prototype.moveChildTaskItems = function(task, width, moveChild)
     {
         taskItem.style.left = parseInt(taskItem.style.left) + width + "px";
         task.addDayInPanelTime();
-        task.TaskInfo.EST = new Date(this.Chart.startDate);
-        task.TaskInfo.EST.setHours(task.TaskInfo.EST.getHours() + (parseInt(taskItem.style.left) / this.Chart.hourInPixels));
+        task.TaskInfo.StartDate = new Date(this.Chart.startDate);
+        task.TaskInfo.StartDate.setHours(task.TaskInfo.StartDate.getHours() + (parseInt(taskItem.style.left) / this.Chart.hourInPixels));
 
         for (var n = 0; n < task.cTaskItem[1].length; n++) {
             task.cTaskItem[1][n].style.left = parseInt(task.cTaskItem[1][n].style.left) + width + "px";
@@ -4433,7 +4433,7 @@ GanttProject.prototype.getDuration = function()
     {
         for (var i = 0; i < this.Project.ParentTasks.length; i++)
         {
-            tmpDuration = this.Project.ParentTasks[i].Duration * 24 / this.Chart.hoursInDay + (this.Project.ParentTasks[i].EST - this.Chart.startDate) / (60 * 60 * 1000);
+            tmpDuration = this.Project.ParentTasks[i].Duration * 24 / this.Chart.hoursInDay + (this.Project.ParentTasks[i].StartDate - this.Chart.startDate) / (60 * 60 * 1000);
             if (tmpDuration > duration)
             {
                 duration = tmpDuration;
@@ -4540,13 +4540,13 @@ GanttTask.prototype.getDescStr = function()
                 if (str != "")str += delim;
                 str += propValue;
                 break;
-            case "EST":
+            case "StartDate":
                 if (str != "")str += delim;
                 str += propValue.getDate() + "." + (propValue.getMonth() + 1) + "." + propValue.getFullYear();
                 break;
             case "S-F":
                 if (str != "")str += delim;
-                propValue = this.TaskInfo["EST"];
+                propValue = this.TaskInfo["StartDate"];
                 str += propValue.getDate() + "." + (propValue.getMonth() + 1) + "." + propValue.getFullYear() + " - ";
                 propValue = this.getFinishDate();
                 str += propValue.getDate() + "." + (propValue.getMonth() + 1) + "." + propValue.getFullYear();
@@ -4593,13 +4593,13 @@ GanttTask.prototype.getDuration = function()
     return this.TaskInfo.Duration;
 };
 /**
- * @desc: returns EST of task
+ * @desc: returns start date of task
  * @type: public
  * @topic: 0
  */
-GanttTask.prototype.getEST = function()
+GanttTask.prototype.getStartDate = function()
 {
-    return this.TaskInfo.EST;
+    return this.TaskInfo.StartDate;
 };
 /**
  * @desc: calculates and returns FinishDate of task
@@ -4608,7 +4608,7 @@ GanttTask.prototype.getEST = function()
  */
 GanttTask.prototype.getFinishDate = function()
 {
-    var date = new Date(this.TaskInfo.EST);
+    var date = new Date(this.TaskInfo.StartDate);
     date.setDate(date.getDate() + parseInt((this.TaskInfo["Duration"]-1)/this.Chart.hoursInDay+1)-1);
     return date;
 };
@@ -4861,7 +4861,7 @@ GanttTask.prototype.getResizeInfo = function()
 GanttTask.prototype.createTaskItem = function()
 {
     var self = this;
-    this.posX = this.Chart.getPosOnDate(this.TaskInfo.EST);
+    this.posX = this.Chart.getPosOnDate(this.TaskInfo.StartDate);
 
     var itemControl = document.createElement("div");
     itemControl.id = this.TaskInfo.Id;
@@ -5456,30 +5456,30 @@ GanttError.prototype._init = function()
     this._errors[8] = "Percent Complete should be >= 0";
     this._errors[9] = "Increase duration of task(%0)";
     this._errors[10] = "Reduce duration of task(%0)";
-    this._errors[11] = "Increase  EST of child task (%0)";
-    this._errors[12] = "Reduce EST of task (%0)";
+    this._errors[11] = "Increase  <StartDate> of child task (%0)";
+    this._errors[12] = "Reduce <StartDate> of task (%0)";
     this._errors[13] = "The project (%0) is added";
-    this._errors[14] = "Start Date of the project < start Date of the control";
+    this._errors[14] = "Start date of the project < start date of the control";
     this._errors[15] = "Task (%0) cannot be the child of predecessor task(%1)";
-    this._errors[16] = "Time of the termination of predecessor task(%0) > EST of child task(%1)";
+    this._errors[16] = "Time of the termination of predecessor task(%0) > <StartDate> of child task(%1)";
     this._errors[17] = "The Predecessor (%0) task  does not exist";
-    this._errors[18] = "The EST of task (%0) < start date of the control";
+    this._errors[18] = "The <StartDate> of task (%0) < start date of the control";
     this._errors[19] = "Time of the termination of parent task (%0) < time of the termination of child task(%1)";
-    this._errors[20] = "The EST of task (%0) < EST of parent task(%1)";
+    this._errors[20] = "The <StartDate> of task (%0) < <StartDate> of parent task(%1)";
     this._errors[21] = "The parent task (%0) does not exist";
     this._errors[22] = "The task (%0) is added";
     this._errors[23] = "The project (%0) is added";
-    this._errors[24] = "Task (%0) EST < project (%1) startDate";
-    this._errors[25] = "Parent task (%0) EST cannot be null";
-    this._errors[26] = "Predecessor task (%0) position error. Reduce duration of predecessor task (%0) or increase EST of child task (%1)";
+    this._errors[24] = "Task (%0) <StartDate> < project (%1) startDate";
+    this._errors[25] = "Parent task (%0) <StartDate> cannot be null";
+    this._errors[26] = "Predecessor task (%0) position error. Reduce duration of predecessor task (%0) or increase <StartDate> of child task (%1)";
     this._errors[27] = "Predecessor task (%0) does not exist";
-    this._errors[28] = "Increase duration of parent task (%0) or reduce EST of child task (%1) or reduce duration of child task(%1)";
-    this._errors[29] = "Reduce EST of parent task (%0) or increase  EST of child task (%1)";
+    this._errors[28] = "Increase duration of parent task (%0) or reduce <StartDate> of child task (%1) or reduce duration of child task(%1)";
+    this._errors[29] = "Reduce <StartDate> of parent task (%0) or increase <StartDate> of child task (%1)";
     this._errors[30] = "The  task(%0) does not exist";
     this._errors[31] = "The project(%0) does not exist";
     this._errors[32] = "Predecessor task(%0) and child task(%1) should have the same parent";
-    this._errors[33] = "Reduce EST of parent task (%0) or increase  EST of child task (%1)";
-    this._errors[34] = "EST of task(%0) < start date of the project(%1)";
+    this._errors[33] = "Reduce <StartDate> of parent task (%0) or increase <StartDate> of child task (%1)";
+    this._errors[34] = "<StartDate> of task(%0) < start date of the project(%1)";
     this._errors[35] = "Percent Complete should be <= 100 and >= 0";
     this._errors[36] = "You may not connect a task to itself.";
     this._errors[37] = "Cannot parse this XML string.";
@@ -5585,8 +5585,8 @@ contextMenu.prototype._init = function()
                 }
             }
             );
-    var tab3 = this.createTab(3, "Set EST", "t", true, this);
-    tab3.addItem(1, "EST", document.createElement("input"), "text", function() {
+    var tab3 = this.createTab(3, "Set start date", "t", true, this);
+    tab3.addItem(1, "StartDate", document.createElement("input"), "text", function() {
         tab3.arrItems[0].control.focus();
     });
     tab3.addItem(2, "Move children", document.createElement("input"), "checkbox", function() {
@@ -5596,9 +5596,9 @@ contextMenu.prototype._init = function()
             function() {
                 var isMoveChild = tab3.arrItems[1].control.checked;
                 var arr = tab3.arrItems[0].control.value.split(".");
-                var est = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
+                var startDate = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
                 try {
-                    if (tab3.object.setEST(est, isMoveChild)) tab3.hide();
+                    if (tab3.object.setStartDate(startDate, isMoveChild)) tab3.hide();
                 } catch(e) {
 
                 }
@@ -5700,7 +5700,7 @@ contextMenu.prototype._init = function()
     tab9.addItem(2, "Name", document.createElement("input"), "text", function() {
         tab9.arrItems[1].control.focus();
     });
-    tab9.addItem(3, "EST", document.createElement("input"), "text", function() {
+    tab9.addItem(3, "Start date", document.createElement("input"), "text", function() {
         tab9.arrItems[2].control.focus();
     });
     tab9.addItem(4, "Duration", document.createElement("input"), "text", function() {
@@ -5722,12 +5722,12 @@ contextMenu.prototype._init = function()
                     var id = tab9.arrItems[0].control.value;
                     var name = tab9.arrItems[1].control.value;
                     var arr = tab9.arrItems[2].control.value.split(".");
-                    var est = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
+                    var startDate = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
                     var duration = tab9.arrItems[3].control.value;
                     var pc = tab9.arrItems[4].control.value;
                     var parentTaskId = tab9.arrItems[5].control.value;
                     var predTaskId = tab9.arrItems[6].control.value;
-                    if (tab9.object.insertTask(id, name, est, duration, pc, predTaskId, parentTaskId)) tab9.hide();
+                    if (tab9.object.insertTask(id, name, startDate, duration, pc, predTaskId, parentTaskId)) tab9.hide();
 
                 } catch(e) {
 
@@ -5742,7 +5742,7 @@ contextMenu.prototype._init = function()
     tab11.addItem(2, "Name", document.createElement("input"), "text", function() {
         tab11.arrItems[1].control.focus();
     });
-    tab11.addItem(3, "EST", document.createElement("input"), "text", function() {
+    tab11.addItem(3, "Start date", document.createElement("input"), "text", function() {
         tab11.arrItems[2].control.focus();
     });
     tab11.addItem(4, "Duration", document.createElement("input"), "text", function() {
@@ -5758,12 +5758,12 @@ contextMenu.prototype._init = function()
                     var id = tab11.arrItems[0].control.value;
                     var name = tab11.arrItems[1].control.value;
                     var arr = tab11.arrItems[2].control.value.split(".");
-                    var est = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
+                    var startDate = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
                     var duration = tab11.arrItems[3].control.value;
                     var pc = tab11.arrItems[4].control.value;
                     var parentTaskId = (tab11.object.parentTask == null) ? "" : tab11.object.parentTask.TaskInfo.Id;
                     var predTaskId = tab11.object.TaskInfo.Id;
-                    if (pr.insertTask(id, name, est, duration, pc, predTaskId, parentTaskId)) tab11.hide();
+                    if (pr.insertTask(id, name, startDate, duration, pc, predTaskId, parentTaskId)) tab11.hide();
 
                 } catch(e) {
                     //
@@ -5778,7 +5778,7 @@ contextMenu.prototype._init = function()
     tab10.addItem(2, "Name", document.createElement("input"), "text", function() {
         tab10.arrItems[1].control.focus();
     });
-    tab10.addItem(3, "EST", document.createElement("input"), "text", function() {
+    tab10.addItem(3, "Start date", document.createElement("input"), "text", function() {
         tab10.arrItems[2].control.focus();
     });
     tab10.addItem(4, "Duration", document.createElement("input"), "text", function() {
@@ -5794,12 +5794,12 @@ contextMenu.prototype._init = function()
                     var id = tab10.arrItems[0].control.value;
                     var name = tab10.arrItems[1].control.value;
                     var arr = tab10.arrItems[2].control.value.split(".");
-                    var est = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
+                    var startDate = (arr.length < 3) ? null : (new Date(arr[2], parseInt(arr[1]) - 1, arr[0]));
                     var duration = tab10.arrItems[3].control.value;
                     var pc = tab10.arrItems[4].control.value;
                     var parentTaskId = tab10.object.TaskInfo.Id;
                     var predTaskId = "";
-                    if (pr.insertTask(id, name, est, duration, pc, predTaskId, parentTaskId)) tab10.hide();
+                    if (pr.insertTask(id, name, startDate, duration, pc, predTaskId, parentTaskId)) tab10.hide();
 
                 } catch(e) {
                     //
@@ -6052,7 +6052,7 @@ contextMenuTab.prototype.show = function()
                 this.insertData(t, "Name", this.object.TaskInfo.Name);
                 this.insertData(t, "Duration", this.object.TaskInfo.Duration + " hrs");
                 this.insertData(t, "Percent complete", this.object.TaskInfo.PercentCompleted + "%");
-                this.insertData(t, "EST", this.object.TaskInfo.EST.getDate() + "." + (this.object.TaskInfo.EST.getMonth() + 1) + "." + this.object.TaskInfo.EST.getFullYear());
+                this.insertData(t, "Start date", this.object.TaskInfo.StartDate.getDate() + "." + (this.object.TaskInfo.StartDate.getMonth() + 1) + "." + this.object.TaskInfo.StartDate.getFullYear());
                 this.insertData(t, "Predecessor", this.object.TaskInfo.PredecessorTaskId);
             } else
             {
