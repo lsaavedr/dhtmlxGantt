@@ -3057,6 +3057,7 @@ GanttChart.prototype.getStartDate = function()
 
     this.initialPos = 24 * this.hourInPixels;
     if (this.startDate) {
+        this.startDate.setHours(0);
         return new Date(this.startDate.setHours(this.startDate.getHours() - 24));
     }
     else {
@@ -4923,7 +4924,7 @@ GanttTask.prototype.createTaskItem = function()
         tblTaskInfo.width = this.TaskInfo.Duration * this.Chart.hourInPixelsWork + "px";
 
         var rowTaskInfo = tblTaskInfo.insertRow(0);
-        var cellTaskInfo = document.createElement("TD");
+        var cellTaskInfo = document.createElement("td");
         cellTaskInfo.align = "center";
         cellTaskInfo.vAlign = "top";
         cellTaskInfo.height = this.Chart.heightTaskItem + "px";
@@ -6068,14 +6069,18 @@ contextMenuTab.prototype.show = function()
         {
             r = t.insertRow(t.rows.length);
             c = r.insertCell(r.cells.length);
+            c.style.padding = "0px";
             btnCell = r.insertCell(r.cells.length);
+            btnCell.style.padding = "0px";
             btnCell.appendChild(this.arrItems[i].control);
 
         } else
         {
             r = t.insertRow(t.rows.length);
             c = r.insertCell(r.cells.length);
+            c.style.padding = "0px";
             c2 = r.insertCell(r.cells.length);
+            c2.style.padding = "0px";
             c.innerHTML = this.arrItems[i].Name;
             c2.appendChild(this.arrItems[i].control);
 
@@ -6093,7 +6098,9 @@ contextMenuTab.prototype.show = function()
     if (!btnCell) {
         r = t.insertRow(t.rows.length);
         c = r.insertCell(r.cells.length);
+        c.style.padding = "0px";
         btnCell = r.insertCell(r.cells.length);
+        btnCell.style.padding = "0px";
     } else {
         b.style.marginLeft = "10px";
     }
@@ -6117,8 +6124,10 @@ contextMenuTab.prototype.insertData = function(t, name, value)
     r = t.insertRow(t.rows.length);
     c = r.insertCell(r.cells.length);
     c.style.cssText = "width:100px";
+    c.style.padding = "0px";
     c.innerHTML = name;
     c2 = r.insertCell(r.cells.length);
+    c.style.padding = "0px";
     c2.innerHTML = value;
 
 };
@@ -6127,8 +6136,10 @@ contextMenuTab.prototype.insertControl = function(t, name, value)
     var c,c2,r = null;
     r = t.insertRow(t.rows.length);
     c = r.insertCell(r.cells.length);
+    c.style.padding = "0px";
     c.innerHTML = name;
     c2 = r.insertCell(r.cells.length);
+    c2.style.padding = "0px";
     c2.appendChild(value);
 };
 
