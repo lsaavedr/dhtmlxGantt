@@ -110,6 +110,8 @@ GanttProjectInfo.prototype.deleteTask = function(id)
  */
 GanttProjectInfo.prototype.addTask = function(task)
 {
+    if (this.StartDate > task.StartDate) this.StartDate = task.StartDate; 
+
     this.ParentTasks.push(task);
     task.setProject(this);
 };
