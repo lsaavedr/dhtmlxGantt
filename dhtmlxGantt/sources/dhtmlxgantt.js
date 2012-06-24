@@ -854,9 +854,9 @@ GanttChart.prototype.deleteProject = function(id)
             if (this.isShowNewProject)
             {
                 var d = new Date(this.startDate);
-                var t = new Date(d.setDate(d.getDate() + 1));
+                addDate(d, 1);
 
-                var pi = new GanttProjectInfo(1, "New project", t);
+                var pi = new GanttProjectInfo(1, "New project", d);
                 this.Project.push(pi);
                 var project = new GanttProject(this, pi);
                 project.create();
@@ -1399,7 +1399,7 @@ GanttChart.prototype.correctPosPredecessorTask = function(predTask, ctask, ctask
     newDate.setHours(newDate.getHours() + (predTask.Duration / this.hoursInDay * 24));
     if (newDate.getHours() > 0) {
         newDate.setHours(0);
-        newDate.setDate(newDate.getDate() + 1);
+        addDate(newDate, 1);
     }
 
     if (ctaskObj) ctaskObj.setStartDate(newDate, true);
@@ -2519,7 +2519,7 @@ GanttChart.prototype.addPointInTimePanel = function(row, panelTime)
 GanttChart.prototype._calculateMonthColSpan = function(date, maxLen) {
     var m1 = date.getMonth();
     for(var i=1; i<=maxLen; i++) {
-        date.setDate(date.getDate() + 1);
+        addDate(date, 1);
         var m2 = date.getMonth();
         if (m2 != m1) return i;
     }
@@ -2579,10 +2579,11 @@ GanttChart.prototype.addDayInPanelTime = function(row)
     newCell.style.width = this.dayInPixels + "px";
     newCell.className = "dayNumber";
 
-    date.setDate(date.getDate() + parseInt(idx));
-    var day = date.getDate()
+    addDate(date, parseInt(idx));
+    var day = date.getDate();
     newCell.innerHTML = day;
     newCell.setAttribute("idx", idx);
+    newCell.setAttribute("date", date);
 
     var monthRow = row.parentNode.parentNode.rows[0];
     if (idx==0 || day==1) {
@@ -2602,6 +2603,7 @@ GanttChart.prototype.addDayInPanelTime = function(row)
 
     var w = date.getDay();
     if (w==0 || w==6) newCell.style.backgroundColor = "#f7f8f7";
+    if (date.dst) newCell.style.backgroundColor = "#fff3f3";
 };
 /**
  * @desc: increment Height of Panel Tasks
@@ -3578,12 +3580,12 @@ GanttTask.prototype.checkPos = function(startDate)
     var h = startDate.getHours();
     if (h >= 12)
     {
-        startDate.setDate(startDate.getDate() + 1);
+        addDate(startDate, 1);
         startDate.setHours(0);
 
         if ((parseInt(this.cTaskItem[0].firstChild.firstChild.width) + this.Chart.getPosOnDate(startDate) > this.maxPosXMove) && (this.maxPosXMove != -1))
         {
-            startDate.setDate(startDate.getDate() - 1);
+            addDate(startDate, -1);
             startDate.setHours(0);
         }
 
@@ -3593,7 +3595,7 @@ GanttTask.prototype.checkPos = function(startDate)
         startDate.setHours(0);
         if ((this.Chart.getPosOnDate(startDate) < this.minPosXMove))
         {
-            startDate.setDate(startDate.getDate() + 1);
+            addDate(startDate, 1);
         }
     }
     this.cTaskItem[0].style.left = this.Chart.getPosOnDate(startDate) + "px";
@@ -4611,7 +4613,7 @@ GanttTask.prototype.getStartDate = function()
 GanttTask.prototype.getFinishDate = function()
 {
     var date = new Date(this.TaskInfo.StartDate);
-    date.setDate(date.getDate() + parseInt((this.TaskInfo["Duration"]-1)/this.Chart.hoursInDay+1)-1);
+    addDate(date, parseInt((this.TaskInfo["Duration"]-1)/this.Chart.hoursInDay+1)-1);
     return date;
 };
 /**
@@ -6152,4 +6154,24 @@ function contextMenuTabItem(id, name, control, tab)
     this.control = control;
     this.tab = tab;
 
-}
+};
+
+function addDate(date, days)
+{
+    var h = date.getHours();
+    date.setHours(12); // at noon there are no problems with daylight saving time
+
+    date.setDate(date.getDate() + days);
+
+    var day = date.getDate();
+    date.setHours(h);
+
+    date.dst = false;
+    if (day != date.getDate()) {
+      date.setHours(h+1);
+      date.setDate(day);
+      date.dst = true;
+    }
+
+    return date;
+};
