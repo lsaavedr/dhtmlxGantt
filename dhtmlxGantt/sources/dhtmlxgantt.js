@@ -45,7 +45,8 @@ function GanttProjectInfo(id, name, startDate)
     this.Name = name;
     this.StartDate = startDate;
     this.ParentTasks = [];
-}
+};
+
 /**
  * @desc:  Delete specified task
  * @param: id - id of the task to be deleted
@@ -56,15 +57,12 @@ function GanttProjectInfo(id, name, startDate)
 GanttProjectInfo.prototype.deleteTask = function(id)
 {
     var task = this.getTaskById(id);
+
     if (task) {
         if (!task.ParentTask) {
-
             for (var i = 0; i < this.ParentTasks.length; i++) {
-
                 if (this.ParentTasks[i].Id == id) {
-
                     if (this.ParentTasks[i].nextParentTask) {
-
                         if (this.ParentTasks[i].previousParentTask) {
                             this.ParentTasks[i].previousParentTask.nextParentTask = this.ParentTasks[i].nextParentTask;
                             this.ParentTasks[i].nextParentTask.previousParentTask = this.ParentTasks[i].previousParentTask;
@@ -117,6 +115,7 @@ GanttProjectInfo.prototype.deleteTask = function(id)
         }
     }
 };
+
 /**
  * @desc:  Addition of the task in project
  * @param: task - TaskInfo object
@@ -131,6 +130,7 @@ GanttProjectInfo.prototype.addTask = function(task)
     this.ParentTasks.push(task);
     task.setProject(this);
 };
+
 /**
  * @desc: get object task by id
  * @param: id - id of task
@@ -139,13 +139,14 @@ GanttProjectInfo.prototype.addTask = function(task)
  */
 GanttProjectInfo.prototype.getTaskById = function(id)
 {
-    for (var j = 0; j < this.ParentTasks.length; j++)
-    {
+    for (var j = 0; j < this.ParentTasks.length; j++) {
         var task = this.getTaskByIdInTree(this.ParentTasks[j], id);
         if (task) return task;
     }
+
     return null;
 };
+
 /**
  * @desc: get object task by id
  * @param: parentTask -(object) parent task
@@ -155,31 +156,16 @@ GanttProjectInfo.prototype.getTaskById = function(id)
  */
 GanttProjectInfo.prototype.getTaskByIdInTree = function(parentTask, id)
 {
-    if (parentTask.Id == id)
-    {
-        return parentTask;
+    if (parentTask.Id == id) return parentTask;
 
-    } else
-    {
-        for (var i = 0; i < parentTask.ChildTasks.length; i++) {
-
-            if (parentTask.ChildTasks[i].Id == id)
-            {
-                return parentTask.ChildTasks[i];
-            }
-            if (parentTask.ChildTasks[i].ChildTasks.length > 0)
-            {
-                if (parentTask.ChildTasks[i].ChildTasks.length > 0)
-                {
-                    var cTask = this.getTaskByIdInTree(parentTask.ChildTasks[i], id);
-                    if (cTask) return cTask;
-                }
-            }
-        }
-
+    for (var i = 0; i < parentTask.ChildTasks.length; i++) {
+        var cTask = this.getTaskByIdInTree(parentTask.ChildTasks[i], id);
+        if (cTask) return cTask;
     }
+
     return null;
 };
+
 /**
  * @desc: GanttTaskInfo constructor
  * @param: id - Specifies id of task
@@ -208,7 +194,8 @@ function GanttTaskInfo(id, name, startDate, duration, percentCompleted, predeces
     this.previousChildTask = null;
     this.nextParentTask = null;
     this.previousParentTask = null;
-}
+};
+
 /**
  * @desc: Addition of child task to the parent task
  * @param: task - (object) task
@@ -220,6 +207,7 @@ GanttTaskInfo.prototype.addChildTask = function(task)
     this.ChildTasks.push(task);
     task.ParentTask = this;
 };
+
 /**
  * @desc: set project to this task and its children
  * @param: project - (object) project
@@ -234,6 +222,7 @@ GanttTaskInfo.prototype.setProject = function(project)
         this.ChildTasks[j].setProject(project);
     }
 };
+
 /**
  * @desc: private GanttTask constructor
  * @param: taskInfo - (object)GanttTaskInfo
@@ -280,7 +269,8 @@ function GanttTask(taskInfo, project, chart)
     this.nextParentTask = null;
     this.previousParentTask = null;
 
-}
+};
+
 /**
  * @desc:  private GanttProject constructor
  * @type:  public
