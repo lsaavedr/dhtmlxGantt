@@ -2875,11 +2875,13 @@ GanttChart.prototype.create = function(divId)
 
     //Creation panel of time
     this.panelTime = document.createElement("div");
+    this.panelTime.id = "panelTime";
     this.panelTime.appendChild(this.createPanelTime());
     this.panelTime.style.cssText = "position:relative;overflow:hidden;height:40px;top:0px;left:1px";
 
     //Creation panel oData
     this.oData = document.createElement("div");
+    this.oData.id = "oData";
     this.oData.appendChild(this.createPanelTasks());
     this.oData.style.cssText = "position:relative;overflow:scroll;height:" + (this.contentHeight - 40) + "px;border-left:#f1f3f1 1px solid";
 
@@ -2903,6 +2905,7 @@ GanttChart.prototype.create = function(divId)
 
     //add oData and oDataTime
     newCellTblControl = document.createElement("td");
+    newCellTblControl.id = "timeTasks";
     newCellTblControl.style.padding = "0px";
     var divCell = document.createElement("div");
     divCell.style.cssText = "position: relative;";
