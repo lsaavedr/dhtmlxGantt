@@ -2856,6 +2856,7 @@ GanttChart.prototype.create = function(divId)
 
     //create Table
     var tableControl = document.createElement("table");
+    tableControl.id = "tableControl";
     tableControl.cellPadding = "0";
     tableControl.cellSpacing = "0";
     tableControl.style.cssText = "width: 100%; position: relative;";
