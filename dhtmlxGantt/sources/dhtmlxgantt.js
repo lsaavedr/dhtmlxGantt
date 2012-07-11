@@ -2425,6 +2425,7 @@ GanttChart.prototype.createPanelTasks = function()
 GanttChart.prototype.createPanelNamesTasks = function()
 {
     var divListNames = document.createElement("div");
+    divListNames.id = "divListNames";
     divListNames.innerHTML = "&nbsp;";
     divListNames.style.cssText = "position:relative;background:url(" + this.imgs + "bg.png)";
     divListNames.style.height = this.contentHeight - 63 + "px";
@@ -2887,11 +2888,13 @@ GanttChart.prototype.create = function(divId)
     //Creation panel of names
     if (this._showTreePanel)
     {
-        this.panelNames = document.createElement("div");
         newCellTblControl = document.createElement("td");
+        newCellTblControl.id = "treePanel";
         newCellTblControl.vAlign = "top";
         newCellTblControl.style.padding = "0px";
 
+        this.panelNames = document.createElement("div");
+        this.panelNames.id = "panelNames";
         this.panelNames.appendChild(this.createPanelNamesTasks());
         this.panelNames.style.cssText = "position:relative;top:40px;overflow:hidden;border-left:#f1f3f1 1px solid;border-bottom:#f1f3f1 1px solid";
         newCellTblControl.appendChild(this.panelNames);
