@@ -1980,7 +1980,6 @@ GanttTask.prototype.setName = function(name)
         {
             this.cTaskNameItem[0].innerHTML = name;
             this.cTaskNameItem[0].title = name;
-            this.checkWidthTaskNameItem();
         }
         if (this.Chart.isShowDescTask)this.descrTask.innerHTML = this.getDescStr();
         this.addDayInPanelTime();
@@ -5155,23 +5154,6 @@ GanttTask.prototype.createTaskDescItem = function()
 };
 
 /**
- * @desc: check Width of taskNameItem
- * @type: private
- * @topic: 4
- */
-GanttTask.prototype.checkWidthTaskNameItem = function()
-{
-    if (this.cTaskNameItem[0].offsetWidth + this.cTaskNameItem[0].offsetLeft > this.Chart.maxWidthPanelNames)
-    {
-        var width = this.cTaskNameItem[0].offsetWidth + this.cTaskNameItem[0].offsetLeft - this.Chart.maxWidthPanelNames;
-        var countChar = Math.round(width / (this.cTaskNameItem[0].offsetWidth / this.cTaskNameItem[0].firstChild.length));
-        var tName = this.TaskInfo.Name.substring(0, this.cTaskNameItem[0].firstChild.length - countChar - 3);
-        tName += "...";
-        this.cTaskNameItem[0].innerHTML = tName;
-    }
-
-};
-/**
  * @desc: creation of GanttTask
  * @type: private
  * @topic: 0
@@ -5252,7 +5234,6 @@ GanttTask.prototype.create = function()
             this.cTaskNameItem[0].style.left = parseInt(this.parentTask.cTaskNameItem[0].style.left) + 15 + "px";
             arrConnectingLinesNames = this.createConnectingLinesPN();
         }
-        this.checkWidthTaskNameItem();
 
         var treeImg = null;
         if (isCParentTask) treeImg = this.createTreeImg();
